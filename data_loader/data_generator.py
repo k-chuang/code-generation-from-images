@@ -4,14 +4,20 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import sys, os
 import numpy as np
+from data.load_data import load_doc
 
 sys.path.append('..')    
 
+
 def preprocess_data(texts, features, max_sequence):
     X, y, image_data = list(), list(), list()
-#     X = np.empty(dtype=object)
-#     y = np.empty(dtype=object)
-#     image_data = np.empty(dtype=float)
+    # Initialize the function to create the vocabulary
+    tokenizer = Tokenizer(filters='', split=" ", lower=False)
+    # Create the vocabulary
+    tokenizer.fit_on_texts([load_doc('data/bootstrap.vocab')])
+    # Add one spot for the empty word in the vocabulary (17 vocabulary words + 1 = 18 (vocab_size))
+    vocab_size = len(tokenizer.word_index) + 1
+    # max_length = 48
     sequences = tokenizer.texts_to_sequences(texts)
     for img_no, seq in enumerate(sequences):
         for i in range(1, len(seq)):
@@ -36,7 +42,7 @@ def data_generator(descriptions, features, n_step, max_sequence):
     while 1:
         # loop over photo identifiers in the dataset
         for i in range(0, len(descriptions), n_step):
-            Ximages, XSeq, y = list(), list(),list()
+            Ximages, XSeq, y = list(), list(), list()
             for j in range(i, min(len(descriptions), i+n_step)):
                 image = features[j]
                 # retrieve text input
