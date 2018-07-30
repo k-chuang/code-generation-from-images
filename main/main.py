@@ -7,7 +7,7 @@ import tensorflow as tf
 from data.prepare_data import prepare_data
 from data.split_dataset import partition_data
 from data.load_data import load_data
-from data_loader.data_generator import *
+from data_loader.data_generator import data_generator
 from models.code_generator_model import CodeGeneratorModel
 from trainers.trainer import CodeGeneratorTrainer
 
@@ -59,7 +59,7 @@ def main():
         # # create tensorboard logger
         logger = DefinedSummarizer(sess, summary_dir=config.summary_dir,
                                    scalar_tags=['train/loss_per_epoch', 'train/acc_per_epoch',
-                                                'test/loss_per_epoch','test/acc_per_epoch'])
+                                                'test/loss_per_epoch', 'test/acc_per_epoch'])
 
         # create trainer and path all previous components to it
         trainer = CodeGeneratorTrainer(sess, model, config, logger, data_loader)

@@ -1,6 +1,5 @@
 {
   "exp_name": "code_generation_from_images_GRU_1",
-
   "img_h": 256,
   "img_w": 256,
   "channels": 3,
@@ -11,9 +10,7 @@
   "num_epochs": 50,
   "num_iterations": 1500,
   "learning_rate": 0.0001,
-
   "max_to_keep": "None",
-
   "data_loader": "data_generator",
   "checkpoint_dir": "C:\\Users\\kevin\\PycharmProjects\\code-generation-from-images\\checkpoints"
 

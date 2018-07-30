@@ -28,5 +28,5 @@ def load_data(data_dir):
             # Add a space after each comma
             syntax = syntax.replace(',', ' ,')
             text.append(syntax)
-    images = np.array(images, dtype=float)
+    images = np.array(images, dtype=np.float32)
     return images, text
