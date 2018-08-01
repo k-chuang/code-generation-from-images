@@ -1,65 +1,81 @@
-from tqdm import tqdm
-import tensorflow as tf
+import keras
 import numpy as np
+from keras.utils import to_categorical
+from keras.preprocessing.sequence import pad_sequences
 
+class DataGenerator(keras.utils.Sequence):
+    # initialization
+    def __init__(self, train_texts, train_features, batch_size, tokenizer, shuffle=True):
+        self.train_texts = train_texts
+        self.train_features = train_features
+        #         self.dim_x = dim_x
+        #         self.dim_y = dim_y
+        #         self.list_IDs = list_IDs
+        self.tokenizer = tokenizer
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.on_epoch_end()
 
-class DataGenerator:
-    """
-    Manual Loading
-    Using placeholders and python generators
-    """
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.floor(len(self.train_texts) / self.batch_size))
 
-    def __init__(self, config):
-        self.config = config
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index * self.batch_size: (index + 1) * self.batch_size]
 
-        self.x_train = np.load(config.x_train)
-        self.y_train = np.load(config.y_train)
-        self.x_test = np.load(config.x_test)
-        self.y_test = np.load(config.y_test)
+        # Find list of IDs
+        batch_train_texts = [self.train_texts[k] for k in indexes]
+        batch_train_features = [self.train_features[k] for k in indexes]
 
-        print("x_train shape: {} dtype: {}".format(self.x_train.shape, self.x_train.dtype))
-        print("y_train shape: {} dtype: {}".format(self.y_train.shape, self.y_train.dtype))
-        print("x_test shape: {} dtype: {}".format(self.x_test.shape, self.x_test.dtype))
-        print("y_test shape: {} dtype: {}".format(self.y_test.shape, self.y_test.dtype))
+        # Generate data
+        X, y = self.__data_generation(batch_train_texts, batch_train_features, 150)
 
-        self.len_x_train = self.x_train.shape[0]
-        self.len_x_test = self.x_test.shape[0]
+        return X, y
 
-        self.num_iterations_train = self.len_x_train // self.config.batch_size
-        self.num_iterations_test = self.len_x_test // self.config.batch_size
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.train_texts))
+        if self.shuffle:
+            np.random.shuffle(self.indexes)
 
-    def get_input(self):
-        x = tf.placeholder(tf.float32, [None, self.config.img_h, self.config.img_w, 3])
-        y = tf.placeholder(tf.int64, [None, ])
+    def preprocess_data(texts, features, max_sequence, tokenizer):
+        X, y, image_data = list(), list(), list()
+        sequences = tokenizer.texts_to_sequences(texts)
+        for img_no, seq in enumerate(sequences):
+            for i in range(1, len(seq)):
+                # Add the sentence until the current count(i) and add the current count to the output
+                in_seq, out_seq = seq[:i], seq[i]
+                # Pad all the input token sentences to max_sequence
+                in_seq = pad_sequences([in_seq], maxlen=max_sequence)[0]
+                # Turn the output into one-hot encoding
+                out_seq = to_categorical([out_seq], num_classes=vocab_size)[0]
+                # Add the corresponding image to the boostrap token file
+                image_data.append(features[img_no])
+                # Cap the input sentence to 48 tokens and add it
+                X.append(in_seq[-48:])
+                y.append(out_seq)
+        return np.array(image_data), np.array(X), np.array(y)
 
-        return x, y
+    def __data_generation(self, train_texts, train_images, max_sequence):
+        # initialization
+        #         X1 = np.empty((self.batch_size, self.dim_x, self.dim_y, 3))
+        #         X2 = np.empty((self.batch_size, self.number_features))
+        #         Y = np.empty((self.batch_size), dtype = int)
 
-    def generator_train(self):
-        start = 0
-        idx = np.random.choice(self.len_x_train, self.len_x_train, replace=False)
-        while True:
-            mask = idx[start:start + self.config.batch_size]
-            x_batch = self.x_train[mask]
-            y_batch = self.y_train[mask]
+        for i in range(0, len(train_texts), self.batch_size):
+            Ximages, XSeq, y = list(), list(), list()
+            for j in range(i, min(len(train_texts), i + self.batch_size)):
+                image = train_images[j]
+                # retrieve text input
+                desc = train_texts[j]
+                # generate input-output pairs
+                in_img, in_seq, out_word = self.preprocess_data([desc], [image], max_sequence, self.tokenizer)
+                for k in range(len(in_img)):
+                    Ximages.append(in_img[k])
+                    XSeq.append(in_seq[k])
+                    y.append(out_word[k])
 
-            start += self.config.batch_size
+        return [[np.array(Ximages), np.array(XSeq)], np.array(y)]
 
-            yield x_batch, y_batch
-
-            if start >= self.len_x_train:
-                return
-
-    def generator_test(self):
-        start = 0
-        idx = np.random.choice(self.len_x_test, self.len_x_test, replace=False)
-        while True:
-            mask = idx[start:start + self.config.batch_size]
-            x_batch = self.x_test[mask]
-            y_batch = self.y_test[mask]
-
-            start += self.config.batch_size
-
-            yield x_batch, y_batch
-
-            if start >= self.len_x_test:
-                return
