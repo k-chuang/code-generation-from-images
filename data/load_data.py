@@ -4,10 +4,10 @@ import numpy as np
 
 # Read a file and return a string
 def load_doc(filename):
-    file = open(filename, 'r')
-    text = file.read()
-    file.close()
+    with open(filename, 'r') as f:
+        text = f.read()
     return text
+
 
 def load_data(data_dir):
     text = []

@@ -1,5 +1,4 @@
 import json
-from easydict import EasyDict
 import os
 
 

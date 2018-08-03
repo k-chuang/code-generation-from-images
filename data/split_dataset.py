@@ -89,7 +89,6 @@ def split_dataset(input_path):
         shutil.copyfile("{}/{}.png".format(input_path, path), "{}/{}/{}.png".format(os.path.dirname(input_path), TESTING_SET_NAME, path))
         shutil.copyfile("{}/{}.gui".format(input_path, path), "{}/{}/{}.gui".format(os.path.dirname(input_path), TESTING_SET_NAME, path))
 
-    
     for path in eval_set:
         shutil.copyfile("{}/{}.png".format(input_path, path), "{}/{}/{}.png".format(os.path.dirname(input_path), EVALUATION_SET_NAME, path))
         shutil.copyfile("{}/{}.gui".format(input_path, path), "{}/{}/{}.gui".format(os.path.dirname(input_path), EVALUATION_SET_NAME, path))
@@ -105,13 +104,13 @@ def split_dataset(input_path):
 
 def partition_data(input_path):
 
-    if not os.path.exists('img/train_images'):
+    if not os.path.exists('../data/img/train_images'):
         split_dataset(input_path)
     else:
         print('Training set images already exist at ../data/img/train_images and are ready to be converted to arrays')
         
-    if os.path.exists('img/eval_images'):
+    if os.path.exists('../data/img/eval_images'):
         print('Evaluation set images already exist at ../data/img/eval_images and are ready to be converted to arrays')
 
-    if os.path.exists('img/test_images'):
+    if os.path.exists('../data/img/test_images'):
         print('Test set images already exist at ../data/img/test_images and are ready to be converted to arrays')
