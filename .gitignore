@@ -6,6 +6,7 @@ data/test/
 data/train/
 checkpoints/
 CodeGeneratorModel.txt
+layers.txt
 
 # IDE
 .idea/
