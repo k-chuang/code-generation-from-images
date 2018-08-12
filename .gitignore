@@ -5,7 +5,6 @@ data/eval/
 data/img/
 data/test/
 data/train/
-data/all_data.zip*
 checkpoints/
 CodeGeneratorModel.txt
 layers.txt
