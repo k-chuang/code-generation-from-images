@@ -1,0 +1,10 @@
+Image file format is channels_last
+Keras backend file format is channels_last
+Training images input shape: (1400, 256, 256, 3)
+Evaluation images input shape: (100, 256, 256, 3)
+Training texts shape: 1400
+Evaluation texts input shape: 100
+Epoch size: 50
+Batch size: 1
+Steps per epoch: 1400
+Kernel Initializer: he_normal

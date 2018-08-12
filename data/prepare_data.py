@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 import shutil
+from data.split_dataset import split_dataset, partition_data
 
 
 def get_preprocessed_image(img_path, image_size):
@@ -53,3 +54,15 @@ def prepare_data(train_dir_name, eval_dir_name, test_dir_name):
          print('Test set already exists at %s' % test_dir_name)
 
     print('All data successfully converted to numpy arrays...')
+
+
+def main():
+    train_dir_name = '../data/train/'
+    test_dir_name = '../data/test/'
+    eval_dir_name = '../data/evaluator/'
+    # Preparing data
+    partition_data('../data/all_data')
+    prepare_data(train_dir_name, eval_dir_name, test_dir_name)
+
+if __name__ == '__main__':
+    main()

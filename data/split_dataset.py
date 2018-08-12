@@ -31,9 +31,9 @@ def split_dataset(input_path):
 
     assert training_samples_number + evaluation_samples_number + testing_samples_number == len(paths)
 
-    print("Splitting datasets, training samples: {}, testing samples: {}, evaluation samples: {}".format(training_samples_number,
-                                                                                                         testing_samples_number,
-                                                                                                         evaluation_samples_number))
+    print("Splitting datasets, training samples: {}, testing samples: {}, evaluation samples: {}".format(int(training_samples_number),
+                                                                                                         int(testing_samples_number),
+                                                                                                         int(evaluation_samples_number)))
 
     np.random.shuffle(paths)
 

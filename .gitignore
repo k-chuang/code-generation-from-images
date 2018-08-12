@@ -1,16 +1,18 @@
 # Datasets
-archive/code_generator_model.py
+archive/*
 data/all_data/
 data/eval/
 data/img/
 data/test/
 data/train/
+data/all_data.zip*
 checkpoints/
 CodeGeneratorModel.txt
 layers.txt
 experiments/
 results/generated_dsl
 results/generated_html
+results/weights.hdf5
 
 # IDE
 .idea/

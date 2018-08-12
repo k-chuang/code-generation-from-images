@@ -1,13 +1,12 @@
 import sys
 sys.path.extend(['..'])
+from config.config import *
 
-from utils.memory_saving_gradients import *
-
-# from tensorflow.python.keras._impl.keras import backend as K
-# K.__dict__["gradients"] = gradients_memory
+from keras import backend as K
+K.set_image_data_format(IMAGE_FILE_FORMAT)
 
 import tensorflow as tf
-config = tf.ConfigProto(log_device_placement=True)
+config = tf.ConfigProto(log_device_placement=False)
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 
@@ -18,49 +17,68 @@ from keras.preprocessing.text import Tokenizer
 from model.CodeGeneratorModel import CodeGeneratorModel
 from data_loader.DataGenerator import *
 from utils.callbacks import *
-from config.config import *
+from contextlib import redirect_stdout
 
 
-def trainer():
+def trainer(train_dir_name, eval_dir_name, out_dir_name):
 
-    train_dir_name = '../data/train/'
-    test_dir_name = '../data/test/'
-    eval_dir_name = '../data/eval/'
+    if not os.path.exists(out_dir_name):
+        os.makedirs(out_dir_name)
 
-    outD = '../results/'
-    if not os.path.exists(outD):
-        os.makedirs(outD)
-
-    # Preparing data
-    partition_data('../data/all_data')
-    prepare_data(train_dir_name, eval_dir_name, test_dir_name)
+    # # Preparing data
+    # partition_data('../data/all_data')
+    # prepare_data(train_dir_name, eval_dir_name, test_dir_name)
 
     train_features, train_texts = load_data(train_dir_name)
-    test_features, test_texts = load_data(test_dir_name)
+    # test_features, test_texts = load_data(test_dir_name)
     eval_features, eval_texts = load_data(eval_dir_name)
-
     steps_per_epoch = len(train_texts) / BATCH_SIZE
+
+    with open(os.path.join(out_dir_name, 'config.txt'), 'w') as fh:
+        with redirect_stdout(fh):
+            print('Image file format is %s' % IMAGE_FILE_FORMAT)
+            print('Keras backend file format is %s' % K.image_data_format())
+            print('Training images input shape: {}'.format(train_features.shape))
+            print('Evaluation images input shape: {}'.format(eval_features.shape))
+            print('Training texts shape: {}'.format(len(train_texts)))
+            print('Evaluation texts input shape: {}'.format(len(eval_texts)))
+            print('Epoch size: {}'.format(EPOCHS))
+            print('Batch size: {}'.format(BATCH_SIZE))
+            print('Steps per epoch: {}'.format(int(steps_per_epoch)))
+            print('Kernel Initializer: {}'.format(KERNEL_INIT))
 
     # Prepare tokenizer to create the vocabulary
     tokenizer = Tokenizer(filters='', split=" ", lower=False)
     # Create the vocabulary
-    tokenizer.fit_on_texts([load_doc('../data/bootstrap.vocab')])
+    tokenizer.fit_on_texts([load_doc('../data/code.vocab')])
 
-    # Initialize data generator
-    train_generator = DataGenerator(train_texts, train_features, batch_size=1, tokenizer=tokenizer, shuffle=True)
-    validation_generator = DataGenerator(eval_texts, eval_features, batch_size=1, tokenizer=tokenizer, shuffle=True)
+    # Initialize data generators for training and validation
+    train_generator = DataGenerator(train_texts, train_features, batch_size=BATCH_SIZE,
+                                    tokenizer=tokenizer, shuffle=True, image_data_format=IMAGE_FILE_FORMAT)
+    validation_generator = DataGenerator(eval_texts, eval_features, batch_size=BATCH_SIZE,
+                                         tokenizer=tokenizer, shuffle=True, image_data_format=IMAGE_FILE_FORMAT)
 
     # Initialize model
-    model = CodeGeneratorModel(IMAGE_SIZE, outD)
+    model = CodeGeneratorModel(IMAGE_SIZE, out_dir_name, image_file_format=IMAGE_FILE_FORMAT, kernel_initializer=KERNEL_INIT)
+    model.save_model()
+    model.summarize()
+    model.summarize_image_model()
+    model.plot_model()
 
-    model.fit_generator(generator=train_generator,
-                        steps_per_epoch=steps_per_epoch,
-                        callbacks=generate_callbacks(outD),
-                        validation_data=validation_generator,
-                        use_multiprocessing=True,
-                        workers=6)
-    # x, y = data_loader[0]
-    # data_loader = data_generator(train_texts, train_features, 2, 150)
+    if VALIDATE:
+        model.fit_generator(generator=train_generator,
+                            steps_per_epoch=steps_per_epoch,
+                            callbacks=generate_callbacks(out_dir_name),
+                            validation_data=validation_generator)
+    else:
+        model.fit_generator(generator=train_generator,
+                            steps_per_epoch=steps_per_epoch,
+                            callbacks=generate_callbacks(out_dir_name))
+
 
 if __name__ == '__main__':
-    trainer()
+    train_dir = '../data/train/'
+    test_dir = '../data/test/'
+    eval_dir = '../data/evaluator/'
+    out_dir = '../results/exp9'
+    trainer(train_dir, eval_dir, out_dir)

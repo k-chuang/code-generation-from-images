@@ -1,0 +1,5 @@
+Test set dir: ../data/test/
+BLEU-1: 0.985665 
+BLEU-2: 0.983938 
+BLEU-3: 0.983800 
+BLEU-4: 0.979921 

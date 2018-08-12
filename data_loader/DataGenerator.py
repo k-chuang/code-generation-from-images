@@ -7,17 +7,18 @@ from config.config import *
 
 class DataGenerator(keras.utils.Sequence):
     # initialization
-    def __init__(self, train_texts, train_features, batch_size, tokenizer, shuffle=True):
-        self.train_texts = train_texts
-        self.train_features = train_features
+    def __init__(self, text_sequences, image_features, batch_size, tokenizer, image_data_format, shuffle=True):
+        self.text_sequences = text_sequences
+        self.image_features = image_features
         self.tokenizer = tokenizer
         self.batch_size = batch_size
+        self.image_data_format = image_data_format
         self.shuffle = shuffle
         self.on_epoch_end()
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(np.floor(len(self.train_texts) / self.batch_size))
+        return int(np.floor(len(self.text_sequences) / self.batch_size))
 
     def __getitem__(self, index):
         '''Dunder/Magic method that generates one batch of data, is called when using DataGenerator[index]'''
@@ -25,17 +26,18 @@ class DataGenerator(keras.utils.Sequence):
         indexes = self.indexes[index * self.batch_size: (index + 1) * self.batch_size]
 
         # Find list of IDs
-        batch_train_texts = [self.train_texts[k] for k in indexes]
-        batch_train_features = [self.train_features[k] for k in indexes]
+        batch_text_sequences = [self.text_sequences[k] for k in indexes]
+        batch_image_features = [self.image_features[k] for k in indexes]
 
         # Generate data
-        X, y = self.__data_generation(batch_train_texts, batch_train_features, MAX_LENGTH)
+        X, y = self.__data_generation(batch_text_sequences, batch_image_features,
+                                      CONTEXT_LENGTH, image_file_format=self.image_data_format)
 
         return X, y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
-        self.indexes = np.arange(len(self.train_texts))
+        self.indexes = np.arange(len(self.text_sequences))
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
@@ -48,8 +50,8 @@ class DataGenerator(keras.utils.Sequence):
         :param max_sequence: maximum length a sequence can reach
         :param tokenizer: a tokenizer with knowledge and mapping of datasets vocabulary
         :return: image_data = (# of tokens/samples in sequence, 256, 256, 3)
-                 X = (# of tokens/samples in sequence, vocab_size=48)
-                 y= (# of tokens/samples in sequence, vocab_size=48)
+                 X = (# of tokens/samples in sequence, context_length=48)
+                 y= (# of tokens/samples in sequence, context_length=48)
         '''
         X, y, image_data = list(), list(), list()
         sequences = tokenizer.texts_to_sequences(texts)
@@ -65,7 +67,7 @@ class DataGenerator(keras.utils.Sequence):
                 in_seq = pad_sequences([in_seq], maxlen=max_sequence, dtype='int8')[0]
                 # Turn the output into one-hot encoding
                 out_seq = to_categorical([out_seq], num_classes=VOCAB_SIZE)[0].astype('int8')
-                # Add the corresponding image to the boostrap token file
+                # Add the corresponding image to the bootstrap token file
                 image_data.append(features[img_no])
                 # Cap the input sentence to 48 tokens and add it
                 X.append(in_seq[-48:])
@@ -75,11 +77,11 @@ class DataGenerator(keras.utils.Sequence):
         # y= (# of tokens/samples in sequence, vocab_size=48)
         return np.array(image_data), np.array(X), np.array(y)
 
-    def __data_generation(self, batched_train_texts, batched_train_images, max_sequence):
+    def __data_generation(self, batched_text_sequences, batched_image_features, max_sequence, image_file_format='channels_last'):
         '''
 
-        :param train_texts: a list of all the train texts/sequences for each webpage image (# of training samples, )
-        :param train_images: a list of numpy arrays representing each image (# of training samples, 256, 256, 3)
+        :param batched_text_sequences: a batch of the train texts/sequences for each webpage image (# of training samples, )
+        :param batched_image_features: a batch of numpy arrays representing each image (# of training samples, 256, 256, 3)
         :param max_sequence: maximum length a sequence can reach
         :return:
         '''
@@ -89,9 +91,9 @@ class DataGenerator(keras.utils.Sequence):
         #         Y = np.empty((self.batch_size), dtype = int)
         x_imgs, x_texts, y = list(), list(), list()
         for j in range(0, self.batch_size):
-            image = batched_train_images[j]
+            image = batched_image_features[j]
             # retrieve text input
-            desc = batched_train_texts[j]
+            desc = batched_text_sequences[j]
             # generate input-output pairs
             in_img, in_seq, out_word = self.preprocess_data([desc], [image], max_sequence, self.tokenizer)
             # Output of above:
@@ -102,25 +104,8 @@ class DataGenerator(keras.utils.Sequence):
                 x_imgs.append(in_img[k])
                 x_texts.append(in_seq[k])
                 y.append(out_word[k])
-
-        return [[np.array(x_imgs), np.array(x_texts)], np.array(y)]
-
-                # for i in range(0, len(batched_train_texts), self.batch_size):
-        #     Ximages, XSeq, y = list(), list(), list()
-        #     for j in range(i, min(len(batched_train_texts), i + self.batch_size)):
-        #         image = batched_train_images[j]
-        #         # retrieve text input
-        #         desc = batched_train_texts[j]
-        #         # generate input-output pairs
-        #         in_img, in_seq, out_word = self.preprocess_data([desc], [image], max_sequence, self.tokenizer)
-        #         # Output of above:
-        #         # in_img = (# of tokens/samples in sequence for image, 256, 256, 3)
-        #         # in_seq = (# of tokens/samples in sequence, vocab_size=48)
-        #         # out_word = (# of tokens/samples in sequence, vocab_size=48)
-        #         for k in range(len(in_img)):
-        #             Ximages.append(in_img[k])
-        #             XSeq.append(in_seq[k])
-        #             y.append(out_word[k])
-
-        # return [[np.array(Ximages), np.array(XSeq)], np.array(y)]
+        if image_file_format == 'channels_first':
+            return [[np.transpose(np.array(x_imgs), [0, 3, 1, 2]), np.array(x_texts)], np.array(y)]
+        else:
+            return [[np.array(x_imgs), np.array(x_texts)], np.array(y)]
 
