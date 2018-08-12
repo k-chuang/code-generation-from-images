@@ -4,8 +4,8 @@ An end-to-end deep neural network designed in Keras (with tensorflow backend) th
 
 ## Disclaimer
 
-The following software is an extension of Tony Beltramelli's [pix2code](https://github.com/tonybeltramelli/pix2code) and Emil Wallner's [Screenshot-to-code-in-Keras](https://github.com/emilwallner/Screenshot-to-code-in-Keras),
-and is used solely for educational purposes. I have altered certain parts of the software, but ultimately, this project is largely influenced by these two open source projects. The pix2code dataset is used to train, test, and validate my deep learning model.
+The following software is an extension of Tony Beltramelli's [pix2code](https://github.com/tonybeltramelli/pix2code),
+and is used solely for educational purposes. I have altered certain parts of the software, but ultimately, this project is largely influenced by this open source project. The pix2code dataset is used to train, test, and validate my deep learning model.
 
 This project is a personal research project that demonstrates an application of deep neural networks in generating content given pairs of visual and textual data. It has given me a chance to explore the different aspects of deep learning from learning different deep learning architectures to understanding the fundamentals of training a neural network. This whole project has been a great learning experience for me, and has elevated my interests specifically in the domain of deep learning.
 
@@ -19,6 +19,38 @@ This project is a personal research project that demonstrates an application of 
 
 ```sh
 pip install -r requirements.txt
+```
+
+## Project Structure
+
+```
+.
+├── base               - contains abstract class of model
+├── compiler           - contains DSL compiler to bootstrap
+│   ├── assets
+│   └── classes
+├── config             - contains neural network hyperparameters
+├── data               - contains dataset and scripts to prepare data
+│   ├── all_data
+│   ├── eval
+│   ├── img
+│   │   ├── eval_images
+│   │   ├── test_images
+│   │   └── train_images
+│   ├── test
+│   └── train
+├── data_loader        - data generator class inherits from Kera's Sequence
+├── demo               - files for quick demo of code generation
+│   └── data
+│       ├── demo_data
+│       └── demo_images
+├── evaluator          - evaluation of model based on BLEU scores
+├── generator          - code generator to generate DSL and HTML code
+├── model              - contains implementation of model architecture
+├── results            - contains model files & results of model training
+├── trainer            - trainer used to train and fit model
+└── utils              - helper functions used for callbacks & tokenizer
+
 ```
 
 ## Usage & Workflow
@@ -87,39 +119,6 @@ python generate_code.py ../data/img/test_images ../results/
 
 
 
-## Project Structure
-
-```
-.
-├── base               - contains abstract class of model
-├── compiler           - contains DSL compiler to bootstrap
-│   ├── assets
-│   └── classes
-├── config             - contains neural network hyperparameters
-├── data               - contains dataset and scripts to prepare data
-│   ├── all_data
-│   ├── eval
-│   ├── img
-│   │   ├── eval_images
-│   │   ├── test_images
-│   │   └── train_images
-│   ├── test
-│   └── train
-├── data_loader        - data generator class inherits from Kera's Sequence
-├── demo               - files for quick demo of code generation
-│   └── data
-│       ├── demo_data
-│       └── demo_images
-├── evaluator          - evaluation of model based on BLEU scores
-├── generator          - code generator to generate DSL and HTML code
-├── model              - contains implementation of model architecture
-├── results            - contains model files & results of model training 
-├── trainer            - trainer used to train and fit model
-└── utils              - helper functions used for callbacks & tokenizer
-
-```
-
 ## Acknowledgements
 - Tony Beltramelli's pix2code
-- Emil Wallner's Screenshot to code in Keras
 - Jason Brownlee's tutorials on image captioning
