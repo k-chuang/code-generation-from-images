@@ -10,8 +10,6 @@ config = tf.ConfigProto(log_device_placement=False)
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 
-from data.prepare_data import prepare_data
-from data.split_dataset import partition_data
 from data.load_data import load_data, load_doc
 from keras.preprocessing.text import Tokenizer
 from model.CodeGeneratorModel import CodeGeneratorModel
@@ -25,14 +23,19 @@ def trainer(train_dir_name, eval_dir_name, out_dir_name):
     if not os.path.exists(out_dir_name):
         os.makedirs(out_dir_name)
 
-    # # Preparing data
-    # partition_data('../data/all_data')
-    # prepare_data(train_dir_name, eval_dir_name, test_dir_name)
-
     train_features, train_texts = load_data(train_dir_name)
-    # test_features, test_texts = load_data(test_dir_name)
     eval_features, eval_texts = load_data(eval_dir_name)
     steps_per_epoch = len(train_texts) / BATCH_SIZE
+    print('Image file format is %s' % IMAGE_FILE_FORMAT)
+    print('Keras backend file format is %s' % K.image_data_format())
+    print('Training images input shape: {}'.format(train_features.shape))
+    print('Evaluation images input shape: {}'.format(eval_features.shape))
+    print('Training texts shape: {}'.format(len(train_texts)))
+    print('Evaluation texts input shape: {}'.format(len(eval_texts)))
+    print('Epoch size: {}'.format(EPOCHS))
+    print('Batch size: {}'.format(BATCH_SIZE))
+    print('Steps per epoch: {}'.format(int(steps_per_epoch)))
+    print('Kernel Initializer: {}'.format(KERNEL_INIT))
 
     with open(os.path.join(out_dir_name, 'config.txt'), 'w') as fh:
         with redirect_stdout(fh):
@@ -77,8 +80,12 @@ def trainer(train_dir_name, eval_dir_name, out_dir_name):
 
 
 if __name__ == '__main__':
+    argv = sys.argv[1:]
+    if len(argv) != 1:
+        print('Need to supply an argument specifying output path')
+        exit(0)
+    out_dir = argv[0]
     train_dir = '../data/train/'
-    test_dir = '../data/test/'
-    eval_dir = '../data/evaluator/'
-    out_dir = '../results/exp9'
+    eval_dir = '../data/eval/'
+    # out_dir = '../results/exp9'
     trainer(train_dir, eval_dir, out_dir)

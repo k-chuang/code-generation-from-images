@@ -106,22 +106,33 @@ def generate_html(input_dir, dsl_mapping, output_dir):
 
 
 if __name__ == '__main__':
-    test_img_dir = '../data/img/test_images'
-    model_path = '../results/'
+    argv = sys.argv[1:]
+    if len(argv) < 2:
+        print('Two arguments are required...')
+        print('Usage: generate_code.py <image path> <model path>')
+        exit(0)
+    test_img_dir = argv[0]
+    model_path = argv[1]
+
+    # test_img_dir = '../data/img/test_images'
+    # model_path = '../results/'
     vocab_path = '../data/code.vocab'
     dsl_dir = os.path.join(model_path, 'generated_dsl')
     if not os.path.exists(dsl_dir):
         print('Generating DSL code...')
         os.makedirs(dsl_dir)
         generate_dsl(test_img_dir, dsl_dir, model_path, tokenizer(vocab_path), CONTEXT_LENGTH, write=True, display=False)
+    else:
+        print('DSL directory already exists...')
 
-    # print('DSL path already exists...')
-    print('Compiling DSL to HTML code...')
     dsl_mapping = '../compiler/assets/web-dsl-mapping.json'
     html_dir = os.path.join(model_path, 'generated_html')
     if not os.path.exists(html_dir):
         os.makedirs(html_dir)
-    compiled_websites = generate_html(dsl_dir, dsl_mapping, html_dir)
+        print('Compiling DSL to HTML code...')
+        compiled_websites = generate_html(dsl_dir, dsl_mapping, html_dir)
+    else:
+        print('HTML directory already exists...')
 
 
 

@@ -59,7 +59,7 @@ def prepare_data(train_dir_name, eval_dir_name, test_dir_name):
 def main():
     train_dir_name = '../data/train/'
     test_dir_name = '../data/test/'
-    eval_dir_name = '../data/evaluator/'
+    eval_dir_name = '../data/eval/'
     # Preparing data
     partition_data('../data/all_data')
     prepare_data(train_dir_name, eval_dir_name, test_dir_name)

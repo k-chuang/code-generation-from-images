@@ -36,8 +36,13 @@ def evaluate_model(input_path, model_path, tokenizer, max_length=48, display=Fal
 
 
 if __name__ == '__main__':
+    argv = sys.argv[1:]
+    if len(argv) != 1:
+        print('Need to supply an argument specifying model path')
+        exit(0)
+    model_path = argv[0]
     test_dir = '../data/test/'
-    model_path = '../results/'
+    # model_path = '../results/'
     vocab_path = '../data/code.vocab'
 
     tokenizer = tokenizer(vocab_path)

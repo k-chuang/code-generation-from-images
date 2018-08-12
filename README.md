@@ -14,26 +14,75 @@ This project is a personal research project that demonstrates an application of 
 ### Prerequisites
 - Python 3
 - pip
-- virtualenv
 
-### Virtual environment setup & install dependencies
+### Install dependencies
 
 ```sh
-virtualenv venv
-source venv/bin/activate
-(venv) pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-## Usage
+## Usage & Workflow
 
 - Prepare pix2code web dataset by reassembling and unzipping the web dataset
 
 ```sh
 cd data
-zip -F all_data.zip --out all_data.zip
+cat all_data.zip.* > all_data.zip
 unzip all_data.zip
 ```
 
+- Partition the dataset by splitting the dataset for training, validation, and testing
+  - Training set: 1400 image-markup pairs saved to data/train/
+  - Validation set: 100 image-markup pairs saved to data/eval/
+  - Testing set: 250 image-markup pairs saved to data/test/
+- Convert image data to numpy arrays
+
+```sh
+python prepare_data.py
+```
+
+- Train model given output path argument to save model files
+  - training set and validation set paths have been predefined
+  - Output directory of the model will include:
+    - Model architecture (JSON file)
+    - Model weights (hdf5 files)
+    - training.log with acc, loss, val_acc, val_loss for each epoch
+    - model.png showing a visualization of the Model
+    - config.txt which shows the hyperparameters of the neural network (batch size, epoch size, etc.)
+    - logs folder with TensorBoard visualizations of training and validation metrics
+
+
+```sh
+cd trainer
+# usage: trainer.py  <output path>
+python trainer.py ../results/
+```
+
+- Evaluate model using BLEU scores given the model path
+  - test set is used to evaluate model and test set path has been predefined
+  - Model path must contain:
+    - Model architecture represented as JSON file
+    - Model weights represented as a hdf5 file
+  - will print and write BLEU 4-ngram scores
+    - bleu_scores.txt file will be generated in model path
+
+```sh
+cd evaluator
+# usage: evaluate_model.py  <model path>
+python evaluate_model.py ../results/
+```
+
+- Generate bootstrap (HTML) code given path to images and model path
+  - Will first generate DSL code for the images in the path specified
+    - saved to a folder called 'generated_dsl' in model path
+  - Then compile to bootstrap (HTML) code
+    - saved to a folder called 'generated_html' in model path
+
+```sh
+cd generator
+# usage: generate_code.py <image path> <model path>
+python generate_code.py ../data/img/test_images ../results/
+```
 
 
 
