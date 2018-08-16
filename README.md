@@ -5,9 +5,9 @@ An end-to-end deep neural network designed in Keras (with tensorflow backend) th
 ## Disclaimer
 
 The following software is an extension of Tony Beltramelli's [pix2code](https://github.com/tonybeltramelli/pix2code),
-and is used solely for educational purposes. I have altered certain parts of the software, but ultimately, this project is largely influenced by this open source project. The pix2code dataset is used to train, test, and validate my deep learning model.
+and is used solely for educational purposes. The [pix2code web dataset](https://github.com/tonybeltramelli/pix2code/tree/master/datasets) is used to train, test, and validate my deep learning model.
 
-This project is a personal research project that demonstrates an application of deep neural networks in generating content given pairs of visual and textual data. It has given me a chance to explore the different aspects of deep learning from learning different deep learning architectures to understanding the fundamentals of training a neural network. This whole project has been a great learning experience for me, and has elevated my interests specifically in the domain of deep learning.
+This project is a personal research project that demonstrates an application of deep neural networks in generating content (bootstrap code) given pairs of visual and textual data. It has given me a chance to explore the different aspects of deep learning from learning different deep learning architectures to understanding the fundamentals of training a neural network. This whole project has been a great learning experience for me, and has elevated my interests specifically in the domain of deep learning. So I want to acknowledge and thank Tony Beltramelli and his work in pix2code.
 
 ## Setup
 
@@ -116,9 +116,11 @@ cd generator
 python generate_code.py ../data/img/test_images ../results/
 ```
 
+## Technical Report
 
+Details of implementation and architecture will be located here on my blog soon: [Kevin Chuang's Blog](https://kevinchuangblog.wordpress.com/)
 
 
 ## Acknowledgements
-- Tony Beltramelli's pix2code
-- Jason Brownlee's tutorials on image captioning
+- Tony Beltramelli's pix2code [paper](https://arxiv.org/pdf/1705.07962.pdf) & [code](https://github.com/tonybeltramelli/pix2code)
+- Jason Brownlee's [tutorial](https://machinelearningmastery.com/develop-a-deep-learning-caption-generation-model-in-python/) on image captioning

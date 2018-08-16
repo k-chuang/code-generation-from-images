@@ -13,6 +13,9 @@ results/generated_dsl
 results/generated_html
 results/weights.hdf5
 
+# Movie files
+*.mov
+
 # IDE
 .idea/
 .DS_Store
