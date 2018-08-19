@@ -9,6 +9,11 @@ import hashlib
 
 
 def split_dataset(input_path):
+    '''
+    Split dataset into train, eval, and test sets
+    :param input_path: path to location of all images and associated gui code
+    :return: None
+    '''
     distribution = 6 
     TRAINING_SET_NAME = "img/train_images"
     EVALUATION_SET_NAME = "img/eval_images"
@@ -103,7 +108,11 @@ def split_dataset(input_path):
 
 
 def partition_data(input_path):
-
+    '''
+    Partitions the data if it is not already split
+    :param input_path: path to location of all images and associated gui code
+    :return: None
+    '''
     if not os.path.exists('../data/img/train_images'):
         split_dataset(input_path)
     else:

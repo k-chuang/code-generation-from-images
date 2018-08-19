@@ -19,7 +19,13 @@ from contextlib import redirect_stdout
 
 
 def trainer(train_dir_name, eval_dir_name, out_dir_name):
-
+    '''
+    Train the model
+    :param train_dir_name: path to training set directory
+    :param eval_dir_name: path to evaluation set directory
+    :param out_dir_name: output path to save model files
+    :return: None
+    '''
     if not os.path.exists(out_dir_name):
         os.makedirs(out_dir_name)
 

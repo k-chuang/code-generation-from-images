@@ -17,7 +17,7 @@ class DataGenerator(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __len__(self):
-        'Denotes the number of batches per epoch'
+        '''Denotes the number of batches per epoch'''
         return int(np.floor(len(self.text_sequences) / self.batch_size))
 
     def __getitem__(self, index):
@@ -36,7 +36,7 @@ class DataGenerator(keras.utils.Sequence):
         return X, y
 
     def on_epoch_end(self):
-        'Updates indexes after each epoch'
+        '''Updates indexes after each epoch'''
         self.indexes = np.arange(len(self.text_sequences))
         if self.shuffle:
             np.random.shuffle(self.indexes)
@@ -55,7 +55,6 @@ class DataGenerator(keras.utils.Sequence):
         '''
         X, y, image_data = list(), list(), list()
         sequences = tokenizer.texts_to_sequences(texts)
-        # max_length = 48
         # Loop through the length of the the specific sequence (different for each gui file)
         for img_no, seq in enumerate(sequences):
             # Create a image and sequence pairs by converting sequence to a (time) series of sequences
@@ -72,23 +71,18 @@ class DataGenerator(keras.utils.Sequence):
                 # Cap the input sentence to 48 tokens and add it
                 X.append(in_seq[-48:])
                 y.append(out_seq)
-        # image_data = (# of tokens/samples in sequence, 256, 256, 3)
-        # X = (# of tokens/samples in sequence, vocab_size=48)
-        # y= (# of tokens/samples in sequence, vocab_size=48)
         return np.array(image_data), np.array(X), np.array(y)
 
     def __data_generation(self, batched_text_sequences, batched_image_features, max_sequence, image_file_format='channels_last'):
         '''
-
-        :param batched_text_sequences: a batch of the train texts/sequences for each webpage image (# of training samples, )
+        Generate batches of data (sequence features & image features pair)
+        :param batched_text_sequences: a batch of the train texts/sequences for each website image (# of training samples,)
         :param batched_image_features: a batch of numpy arrays representing each image (# of training samples, 256, 256, 3)
         :param max_sequence: maximum length a sequence can reach
-        :return:
+        :return: list of numpy arrays with first item as the pair of sequence features & image features and second
+        item as label
         '''
         # initialization
-        #         X1 = np.empty((self.batch_size, self.dim_x, self.dim_y, 3))
-        #         X2 = np.empty((self.batch_size, self.number_features))
-        #         Y = np.empty((self.batch_size), dtype = int)
         x_imgs, x_texts, y = list(), list(), list()
         for j in range(0, self.batch_size):
             image = batched_image_features[j]
@@ -96,10 +90,6 @@ class DataGenerator(keras.utils.Sequence):
             desc = batched_text_sequences[j]
             # generate input-output pairs
             in_img, in_seq, out_word = self.preprocess_data([desc], [image], max_sequence, self.tokenizer)
-            # Output of above:
-            # in_img = (# of tokens/samples in sequence for image, 256, 256, 3)
-            # in_seq = (# of tokens/samples in sequence, vocab_size=48)
-            # out_word = (# of tokens/samples in sequence, vocab_size=48)
             for k in range(len(in_img)):
                 x_imgs.append(in_img[k])
                 x_texts.append(in_seq[k])

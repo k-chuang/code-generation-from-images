@@ -17,6 +17,15 @@ from compiler.classes.Compiler import *
 
 
 def generate_code(model, image, tokenizer, max_length=48, display=False):
+    '''
+    Generate predictions of DSL code
+    :param model: neural network model (architecture + weights) to use for generating
+    :param image: specific image to generate code for
+    :param tokenizer: a Keras Tokenizer object fit on vocab
+    :param max_length: context length
+    :param display: bool on whether to print out DSL code predictions to standard output
+    :return: generated code for a specific image
+    '''
     image = np.array([image])
     # seed the generation process
     generated_code = '<START> '
@@ -49,7 +58,7 @@ def generate_code(model, image, tokenizer, max_length=48, display=False):
 
 def generate_dsl(input_path, dsl_dir, model_path, tokenizer, max_length=48, write=False, display=False):
     '''
-
+    Generate DSL code
     :param input_path: input directory containing png images
     :param dsl_dir: output directory to save .gui files
     :param model_path: path to model (architecture and weights)
@@ -83,11 +92,11 @@ def generate_dsl(input_path, dsl_dir, model_path, tokenizer, max_length=48, writ
 
 def generate_html(input_dir, dsl_mapping, output_dir):
     '''
-
+    Generate html code from compiling DSL code
     :param input_dir: directory containing all DSL file codes (gui files)
     :param dsl_mapping: dsl mapping to html associated code
     :param output_dir: directory to save html files
-    :return: None
+    :return: list of compiled websites
     '''
     compiled_websites = []
 

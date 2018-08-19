@@ -14,7 +14,15 @@ from utils.tokenizer import *
 
 
 def evaluate_model(input_path, model_path, tokenizer, max_length=48, display=False):
-
+    '''
+    Evaluate model by comparing actual vs predictions via the BLEU scoring criteria
+    :param input_path: input path containing images + gui code pairs to evaluate model on
+    :param model_path: path to model files
+    :param tokenizer: a Keras Tokenizer object fit on vocab
+    :param max_length: context length
+    :param display: bool on whether to print out DSL code predictions and actual labels to standard output
+    :return: 4-ngram BLEU score, list of actual DSL code, list of predicted DSL code
+    '''
     model_json_path = glob.glob(os.path.join(model_path, '*.json'))[0]
     model_weights_path = glob.glob(os.path.join(model_path, '*.hdf5'))[0]
     with open(model_json_path, 'r') as fh:
@@ -32,7 +40,8 @@ def evaluate_model(input_path, model_path, tokenizer, max_length=48, display=Fal
             print('\n\nActual---->\n\n' + texts[i])
         actual.append([texts[i].split()])
         predictions.append(predicted_code.split())
-    return actual, predictions
+    bleu = corpus_bleu(actual, predictions)
+    return bleu, actual, predictions
 
 
 if __name__ == '__main__':
@@ -46,7 +55,7 @@ if __name__ == '__main__':
     vocab_path = '../data/code.vocab'
 
     tokenizer = tokenizer(vocab_path)
-    actual, predictions = evaluate_model(test_dir, model_path, tokenizer, CONTEXT_LENGTH, display=False)
+    bleu, actual, predictions = evaluate_model(test_dir, model_path, tokenizer, CONTEXT_LENGTH, display=False)
     # Calculate BLEU score (standard is 4-gram, but just get all individual N-Gram BLEU scores from 1 gram to 4 gram)
     # By default, the sentence_bleu() and corpus_bleu() scores calculate the cumulative 4-gram BLEU score, also called BLEU-4.
     # It is common to report the cumulative BLEU-1 to BLEU-4 scores when describing the skill of a text generation system.
@@ -57,7 +66,6 @@ if __name__ == '__main__':
     print('BLEU-4: %f' % corpus_bleu(actual, predictions, weights=(0.25, 0.25, 0.25, 0.25)))
 
     bleu_score_path = os.path.join(model_path, 'bleu_score.txt')
-    # print('Bleu score: %.04f' % bleu)
     with open(bleu_score_path, 'w') as fh:
         fh.write('Test set dir: %s\n' % test_dir)
         fh.write('BLEU-1: %f \n' % corpus_bleu(actual, predictions, weights=(1.0, 0, 0, 0)))

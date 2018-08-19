@@ -39,6 +39,7 @@ class TrainValTensorBoard(TensorBoard):
         super(TrainValTensorBoard, self).on_train_end(logs)
         self.val_writer.close()
 
+
 def generate_callbacks(output_path):
     filepath = os.path.join(output_path,
             'weights.epoch-{epoch:02d}--loss-{loss:.4f}--acc-{acc:.4f}--val_loss-{val_loss:.4f}--val_acc-{val_acc:.4f}.hdf5')
