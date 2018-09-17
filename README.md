@@ -124,3 +124,7 @@ Details of implementation and architecture will be located here on my blog soon:
 ## Acknowledgements
 - Tony Beltramelli's pix2code [paper](https://arxiv.org/pdf/1705.07962.pdf) & [code](https://github.com/tonybeltramelli/pix2code)
 - Jason Brownlee's [tutorial](https://machinelearningmastery.com/develop-a-deep-learning-caption-generation-model-in-python/) on image captioning
+
+## License
+
+See the [LICENSE](https://github.com/k-chuang/code-generation-from-images/blob/master/LICENSE) file for license rights and limitations (MIT).
